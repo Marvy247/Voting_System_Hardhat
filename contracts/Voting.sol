@@ -33,14 +33,15 @@ contract Voting {
     }
 
     modifier validCandidate(uint _candidateId) {
-        require(candidates[_candidateId].id != 0, "Candidate does not exist");
+        require(candidates[_candidateId].id > 0, "Candidate does not exist");
         _;
     }
 
-    modifier hasNotVoted() {
-        require(voterToCandidate[msg.sender] == 0, "Voter has already voted");
-        _;
-    }
+  modifier hasNotVoted() {
+    require(voterToCandidate[msg.sender] == 0, "Voter has already voted");
+    _;
+}
+
 
     constructor() {
         totalVotes = 0;
@@ -49,15 +50,17 @@ contract Voting {
         owner = msg.sender;
     }
 
-
-    function addCandidate(string memory _name) public votingActiveCheck {
-        require(candidates[candidatesCount].id == 0, "Candidate already exists");
+    function addCandidate(string memory _name) public onlyOwner votingActiveCheck {
+        for (uint i = 1; i <= candidatesCount; i++) {
+            require(keccak256(abi.encodePacked(candidates[i].name)) != keccak256(abi.encodePacked(_name)), "Candidate already exists");
+        }
+        candidatesCount++;
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
         emit CandidateAdded(candidatesCount, _name);
-        candidatesCount++;
     }
 
-    function deleteCandidate(uint _candidateId) public onlyOwner validCandidate(_candidateId) {
+    function deleteCandidate(uint _candidateId) public onlyOwner {
+        require(candidates[_candidateId].id > 0, "Candidate does not exist");
         delete candidates[_candidateId];
         emit CandidateDeleted(_candidateId);
     }
@@ -73,19 +76,20 @@ contract Voting {
         votingActive = false;
     }
 
-    function registerVoter(address _voter) public votingActiveCheck {
+    function registerVoter(address _voter) public onlyOwner votingActiveCheck {
         require(!registeredVoters[_voter], "Voter already registered");
         registeredVoters[_voter] = true;
         emit VoterRegistered(_voter);
     }
 
     function vote(uint _candidateId) public votingActiveCheck validCandidate(_candidateId) hasNotVoted {
-        require(block.timestamp < votingEndTime, "Voting period has ended");
-        voterToCandidate[msg.sender] = _candidateId;
-        candidates[_candidateId].voteCount++;
-        totalVotes++;
-        emit VoteCast(msg.sender, _candidateId);
-    }
+    require(registeredVoters[msg.sender], "Voter not registered");
+    require(block.timestamp < votingEndTime, "Voting period has ended");
+    voterToCandidate[msg.sender] = _candidateId;
+    candidates[_candidateId].voteCount++;
+    totalVotes++;
+    emit VoteCast(msg.sender, _candidateId);
+}
 
     function getTotalVotes() public view returns (uint) {
         return totalVotes;
@@ -96,6 +100,7 @@ contract Voting {
     }
 
     function getCandidate(uint _candidateId) public view returns (uint, string memory, uint) {
+        require(candidates[_candidateId].id > 0, "Candidate does not exist");
         return (candidates[_candidateId].id, candidates[_candidateId].name, candidates[_candidateId].voteCount);
     }
 
