@@ -16,7 +16,7 @@ const WelcomeScreen = ({ connectWallet }) => {
       </div>
 
       {/* Content */}
-      <header className="relative z-10 text-center p-8 sm:p-8 max-w-lg mx-auto bg-gray-100 bg-opacity-90 rounded-lg shadow-2xl backdrop-blur-sm border border-gray-800 transform transition-all duration-500 hover:scale-105 hover:shadow-purple-500/30">
+      <header className="relative z-10 text-center p-8 sm:p-8 max-w-lg mx-6 bg-gray-100 bg-opacity-90 rounded-lg shadow-2xl backdrop-blur-sm border border-gray-800 transform transition-all duration-500 hover:scale-105 hover:shadow-purple-500/30">
         {/* Logo */}
         <FaVoteYea
           className="mx-auto mb-4 w-60 h-20 sm:w-24 sm:h-24 animate-bounce text-purple-800" // Keeping the same styling and animations

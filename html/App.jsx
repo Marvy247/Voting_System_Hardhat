@@ -1,8 +1,8 @@
 import React, { useState } from "react";
+import CandidateList from "./components/CandidateList"; // Import CandidateList component
 import ReactDOM from "react-dom/client";
 import Header from "./components/Header";
 import WalletInfo from "./components/WalletInfo";
-import CandidateList from "./components/CandidateList";
 import VoteButton from "./components/VoteButton";
 import Footer from "./components/Footer";
 import WelcomeScreen from "./components/WelcomeScreen";
@@ -11,6 +11,8 @@ import "/style.css";
 const App = () => {
   const [walletAddress, setWalletAddress] = useState("");
   const [isRegistered, setIsRegistered] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showCandidateList, setShowCandidateList] = useState(false); // State to control visibility of CandidateList
   const [candidates, setCandidates] = useState([
     "Candidate 1",
     "Candidate 2",
@@ -19,21 +21,21 @@ const App = () => {
   const [selectedCandidate, setSelectedCandidate] = useState("");
 
   const connectWallet = () => {
-    // Simulate wallet connection
-    const address = "0x1234567890abcdef"; // Placeholder for wallet address
+    const address = "0x1234567890abcdef"; // Simulated wallet address
     setWalletAddress(address);
-    // Check registration status (simulated)
     setIsRegistered(false); // Simulate not registered
   };
 
-  const handleVote = () => {
-    // Simulate voting logic
-    console.log(`Voted for: ${selectedCandidate}`);
+  const handleRegister = () => {
+    setLoading(true); // Start loading
+    setTimeout(() => {
+      setIsRegistered(true); // Simulate registration
+      setLoading(false); // End loading
+    }, 2000); // Simulate a 2-second delay
   };
 
-  const handleRegister = () => {
-    // Simulate registration logic
-    setIsRegistered(true);
+  const handleNavigateToVotes = () => {
+    setShowCandidateList(true); // Show CandidateList component
   };
 
   return (
@@ -42,27 +44,20 @@ const App = () => {
       <div className="flex-grow flex flex-col items-center justify-center">
         {!walletAddress ? (
           <WelcomeScreen connectWallet={connectWallet} />
+        ) : showCandidateList ? ( // Conditionally render CandidateList
+          <CandidateList
+            candidates={candidates}
+            selectedCandidate={selectedCandidate}
+            setSelectedCandidate={setSelectedCandidate}
+          />
         ) : (
-          <>
-            <WalletInfo
-              walletAddress={walletAddress}
-              isRegistered={isRegistered}
-              onRegister={handleRegister}
-            />
-            {isRegistered && (
-              <CandidateList
-                candidates={candidates}
-                selectedCandidate={selectedCandidate}
-                setSelectedCandidate={setSelectedCandidate}
-              />
-            )}
-            {isRegistered && (
-              <VoteButton
-                handleVote={handleVote}
-                selectedCandidate={selectedCandidate}
-              />
-            )}
-          </>
+          <WalletInfo
+            walletAddress={walletAddress}
+            isRegistered={isRegistered}
+            onRegister={handleRegister}
+            loading={loading}
+            onNavigateToVotes={handleNavigateToVotes} // Pass the navigation function
+          />
         )}
       </div>
       <Footer />
