@@ -1,5 +1,5 @@
 import React from "react";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 const WalletInfo = ({
   walletAddress,
@@ -21,7 +21,8 @@ const WalletInfo = ({
         ></div>
       </div>
 
-      <div className="relative z-10 text-center p-8 mx-10 bg-gray-800 bg-opacity-80 rounded-lg shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-purple-500/50">
+      {/* Content */}
+      <div className="relative z-10 text-center p-8 mx-6 sm:mx-10 bg-gray-800 bg-opacity-80 rounded-lg shadow-2xl transform transition-all duration-300 hover:scale-105 hover:shadow-purple-500/50">
         <p className="text-lg text-white font-medium mb-2">
           Please Register To Vote!
         </p>
@@ -34,12 +35,15 @@ const WalletInfo = ({
 
         {isRegistered ? (
           <>
-            <p className="text-green-400 mt-6 mb-3 font-semibold animate-bounce">
-              You are registered!
-            </p>
+            <div className="flex items-center justify-center mt-6 mb-3">
+              <FaCheckCircle className="text-green-400 text-2xl mr-2" />
+              <p className="text-green-400 font-semibold animate-bounce">
+                You are registered!
+              </p>
+            </div>
             <button
-              onClick={onNavigateToVotes} // Call the function here
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-full flex items-center justify-center mx-auto transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-xl hover:shadow-purple-500/50"
+              onClick={onNavigateToVotes}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 animate-pulse hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-full flex items-center justify-center mx-auto transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-xl hover:shadow-purple-500/50"
               aria-label="Go to Votes"
             >
               Go to Votes
@@ -47,12 +51,15 @@ const WalletInfo = ({
           </>
         ) : (
           <div className="mt-6">
-            <p className="text-red-400 font-semibold mb-4">
-              You are not registered.
-            </p>
+            <div className="flex items-center justify-center mb-4">
+              <FaExclamationCircle className="text-red-400 text-2xl mr-2" />
+              <p className="text-red-400 font-semibold">
+                You are not registered.
+              </p>
+            </div>
             <button
               onClick={onRegister}
-              className={`bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-full flex items-center justify-center mx-auto transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-xl hover:shadow-purple-500/50 ${
+              className={`bg-gradient-to-r animate-pulse from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-full flex items-center justify-center mx-auto transition-all duration-300 ease-in-out transform hover:scale-110 hover:shadow-xl hover:shadow-purple-500/50 ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={loading}
@@ -70,6 +77,7 @@ const WalletInfo = ({
           </div>
         )}
       </div>
+
       {/* Background Animation Keyframes */}
       <style>
         {`

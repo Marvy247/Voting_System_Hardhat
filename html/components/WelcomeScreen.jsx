@@ -1,5 +1,5 @@
 import React from "react";
-import { FaVoteYea } from "react-icons/fa";
+import { FaVoteYea, FaWallet } from "react-icons/fa";
 
 const WelcomeScreen = ({ connectWallet }) => {
   return (
@@ -19,7 +19,8 @@ const WelcomeScreen = ({ connectWallet }) => {
       <header className="relative z-10 text-center p-8 sm:p-8 max-w-lg mx-6 bg-gray-100 bg-opacity-90 rounded-lg shadow-2xl backdrop-blur-sm border border-gray-800 transform transition-all duration-500 hover:scale-105 hover:shadow-purple-500/30">
         {/* Logo */}
         <FaVoteYea
-          className="mx-auto mb-4 w-60 h-20 sm:w-24 sm:h-24 animate-bounce text-purple-800" // Keeping the same styling and animations
+          className="mx-auto mb-4 w-60 h-20 sm:w-24 sm:h-24 animate-bounce text-purple-800"
+          aria-label="BlockVote Logo"
         />
 
         {/* Heading */}
@@ -42,7 +43,8 @@ const WelcomeScreen = ({ connectWallet }) => {
           className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-2 px-4 sm:py-3 sm:px-6 rounded-full flex items-center justify-center mx-auto transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50"
           aria-label="Connect your wallet"
         >
-          <i className="fas fa-wallet mr-2"></i>
+          <FaWallet className="mr-2" />{" "}
+          {/* Replaced Font Awesome with React Icons */}
           Connect Wallet
         </button>
       </header>

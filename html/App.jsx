@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import CandidateList from "./components/CandidateList"; // Import CandidateList component
 import ReactDOM from "react-dom/client";
 import Header from "./components/Header";
 import WalletInfo from "./components/WalletInfo";
-import VoteButton from "./components/VoteButton";
+import CandidateList from "./components/CandidateList";
 import Footer from "./components/Footer";
 import WelcomeScreen from "./components/WelcomeScreen";
 import "/style.css";
@@ -14,18 +13,32 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [showCandidateList, setShowCandidateList] = useState(false); // State to control visibility of CandidateList
   const [candidates, setCandidates] = useState([
-    "Candidate 1",
-    "Candidate 2",
-    "Candidate 3",
+    { id: 1, name: "Candidate 1", voteCount: 0 },
+    { id: 2, name: "Candidate 2", voteCount: 0 },
+    { id: 3, name: "Candidate 3", voteCount: 0 },
   ]);
-  const [selectedCandidate, setSelectedCandidate] = useState("");
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
 
-  const connectWallet = () => {
-    const address = "0x1234567890abcdef"; // Simulated wallet address
-    setWalletAddress(address);
-    setIsRegistered(false); // Simulate not registered
+  // Connect wallet
+  const connectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        const address = accounts[0];
+        setWalletAddress(address);
+        setIsRegistered(false); // Simulate not registered
+      } catch (error) {
+        console.error("Error connecting to wallet:", error);
+        alert("Failed to connect wallet. Please try again.");
+      }
+    } else {
+      alert("Please install MetaMask to use this application.");
+    }
   };
 
+  // Handle registration
   const handleRegister = () => {
     setLoading(true); // Start loading
     setTimeout(() => {
@@ -34,8 +47,23 @@ const App = () => {
     }, 2000); // Simulate a 2-second delay
   };
 
+  // Navigate to CandidateList
   const handleNavigateToVotes = () => {
     setShowCandidateList(true); // Show CandidateList component
+  };
+
+  // Handle voting
+  const handleVote = (candidateId) => {
+    setSelectedCandidate(candidateId);
+    // Simulate voting logic (update vote count)
+    setCandidates((prevCandidates) =>
+      prevCandidates.map((candidate) =>
+        candidate.id === candidateId
+          ? { ...candidate, voteCount: candidate.voteCount + 1 }
+          : candidate
+      )
+    );
+    alert(`Voted for Candidate ${candidateId}`);
   };
 
   return (
@@ -48,7 +76,7 @@ const App = () => {
           <CandidateList
             candidates={candidates}
             selectedCandidate={selectedCandidate}
-            setSelectedCandidate={setSelectedCandidate}
+            onVote={handleVote} // Pass the voting function
           />
         ) : (
           <WalletInfo
