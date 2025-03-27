@@ -349,7 +349,12 @@ export const connectWallet = async () => {
 export const getCurrentAccount = async () => {
   try {
     if (typeof window.ethereum === "undefined") {
-      return null;
+      console.error(
+        "Ethereum provider not found. Please install MetaMask and ensure it is enabled."
+      );
+      throw new Error(
+        "Ethereum provider not found. Please install MetaMask and ensure it is enabled."
+      );
     }
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);

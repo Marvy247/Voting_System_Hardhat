@@ -37,7 +37,9 @@ const App = () => {
   useEffect(() => {
     const init = async () => {
       try {
+        await connectWallet(); // Ensure wallet is connected first
         const address = await getCurrentAccount();
+
         if (address) {
           setAccount(address);
           await Promise.all([
@@ -239,7 +241,7 @@ const App = () => {
                 loading ? (
                   <LoadingScreen />
                 ) : !account ? (
-                  <WelcomeScreen connectWallet={handleConnectWallet} />
+                  <WelcomeScreen />
                 ) : !isRegistered ? (
                   <WalletInfo
                     walletAddress={account}

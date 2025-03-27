@@ -12,8 +12,9 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 import { useLocation, Link } from "react-router-dom";
+import WalletConnector from "./WalletConnector"; // Ensure this is the correct import path
 
-const Header = ({ connectWallet, account, isAdmin }) => {
+const Header = ({ account, isAdmin }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
@@ -22,15 +23,21 @@ const Header = ({ connectWallet, account, isAdmin }) => {
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location]);
+
+  // Format wallet address
+  const formatAddress = (addr) => {
+    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
+  };
 
   // Navigation items
   const navItems = [
@@ -47,16 +54,6 @@ const Header = ({ connectWallet, account, isAdmin }) => {
   const adminNavItems = [
     { path: "/admin", name: "Admin", icon: <FaCog className="mr-2" /> },
   ];
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsOpen(false);
-  }, [location]);
-
-  // Format wallet address
-  const formatAddress = (addr) => {
-    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
-  };
 
   return (
     <header
@@ -82,7 +79,7 @@ const Header = ({ connectWallet, account, isAdmin }) => {
               onClick={() => setIsOpen(!isOpen)}
               type="button"
               className="rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
-              aria-expanded="false"
+              aria-expanded={isOpen}
             >
               <span className="sr-only">Open menu</span>
               {isOpen ? (
@@ -109,7 +106,6 @@ const Header = ({ connectWallet, account, isAdmin }) => {
                 {item.name}
               </Link>
             ))}
-
             {isAdmin &&
               adminNavItems.map((item) => (
                 <Link
@@ -134,6 +130,7 @@ const Header = ({ connectWallet, account, isAdmin }) => {
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 rounded-full px-4 py-2 transition-all duration-200"
+                  aria-expanded={dropdownOpen}
                 >
                   <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white">
                     <FaUser className="text-sm" />
@@ -147,7 +144,6 @@ const Header = ({ connectWallet, account, isAdmin }) => {
                     }`}
                   />
                 </button>
-
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="py-1">
@@ -179,13 +175,9 @@ const Header = ({ connectWallet, account, isAdmin }) => {
                 )}
               </div>
             ) : (
-              <button
-                onClick={connectWallet}
-                className="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-full shadow-sm text-base font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 hover:shadow-lg"
-              >
-                <FaWallet className="mr-2" />
-                Connect Wallet
-              </button>
+              <WalletConnector
+                onConnect={(address) => console.log("Connected:", address)}
+              />
             )}
           </div>
         </div>
@@ -213,7 +205,6 @@ const Header = ({ connectWallet, account, isAdmin }) => {
                 {item.name}
               </Link>
             ))}
-
             {isAdmin &&
               adminNavItems.map((item) => (
                 <Link
@@ -269,13 +260,9 @@ const Header = ({ connectWallet, account, isAdmin }) => {
                 </div>
               </div>
             ) : (
-              <button
-                onClick={connectWallet}
-                className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-              >
-                <FaWallet className="mr-2" />
-                Connect Wallet
-              </button>
+              <WalletConnector
+                onConnect={(address) => console.log("Connected:", address)}
+              />
             )}
           </div>
         </div>

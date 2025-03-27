@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import WalletConnector from "./WalletConnector"; // Import the new WalletConnector component
 import {
   FaVoteYea,
   FaWallet,
@@ -167,14 +168,10 @@ const WelcomeScreen = ({ connectWallet, account, isAdmin }) => {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <button
-                onClick={connectWallet}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-full flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/30"
-              >
-                <FaWallet className="mr-2" />
-                Connect Wallet
-              </button>
-
+              <WalletConnector
+                onConnect={(address) => console.log("Connected:", address)}
+              />{" "}
+              {/* Use the new WalletConnector component */}
               <button
                 onClick={() => setShowFeatures(!showFeatures)}
                 className="bg-transparent border-2 border-purple-500 text-purple-300 hover:bg-purple-900/30 font-medium py-3 px-6 rounded-full flex items-center justify-center transition-all duration-300"
@@ -311,14 +308,10 @@ const WelcomeScreen = ({ connectWallet, account, isAdmin }) => {
                     </motion.div>
                   ))}
                 </div>
-
-                <button
-                  onClick={connectWallet}
-                  className="mt-10 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-full inline-flex items-center transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/30"
-                >
-                  Get Started Now
-                  <FaArrowRight className="ml-2" />
-                </button>
+                <WalletConnector
+                  onConnect={(address) => console.log("Connected:", address)}
+                />{" "}
+                {/* Use the new WalletConnector component */}
               </div>
             </motion.div>
           )}
