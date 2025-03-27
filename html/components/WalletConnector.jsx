@@ -10,7 +10,10 @@ const WalletConnector = ({ onConnect }) => {
         );
       }
 
+      console.log("Attempting to connect to wallet...");
       const provider = new BrowserProvider(window.ethereum);
+      console.log("Wallet connected successfully.");
+
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
@@ -25,8 +28,8 @@ const WalletConnector = ({ onConnect }) => {
       const address = await signer.getAddress();
       onConnect(address); // Call the onConnect prop with the connected address
     } catch (error) {
-      console.error("Wallet connection error:", error);
-      alert(error.message); // Show error message to the user
+      console.error("Wallet connection error:", error); // Log error for debugging
+      alert("Wallet connection error: " + error.message); // Show error message to the user
     }
   };
 

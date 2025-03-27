@@ -1,10 +1,9 @@
 // Use this import instead
 import { ethers } from "ethers";
-
+const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
+import { BrowserProvider } from "ethers"; // Use this import instead
+import { Contract } from "ethers"; // Add this import for Contract
 import VotingContractABI from "../../artifacts/contracts/Voting.sol/Voting.json";
-
-// Configurable contract address
-let contractAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F";
 
 // Initialize provider and signer
 const getProvider = () => {
@@ -13,18 +12,21 @@ const getProvider = () => {
       "Ethereum provider not found. Please install MetaMask and ensure it is enabled."
     );
     throw new Error(
-      "Ethereum provider not found. Please install MetaMask and ensure it is enabled."
+      "Ethereum provider not found. Please install MetaMask and ensure it is enabled. If you have MetaMask installed, please check if it is enabled and you have granted access to your accounts."
     );
   }
 
   try {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const provider = new ethers.BrowserProvider(window.ethereum);
     console.log("Ethereum provider initialized successfully.");
     return provider;
   } catch (error) {
-    throw new Error("Failed to initialize Ethereum provider");
+    throw new Error(
+      "Failed to initialize Ethereum provider. Please ensure that MetaMask is installed and enabled."
+    );
   }
 };
+
 // Function to initialize the contract
 const getVotingContract = () => {
   const provider = getProvider();
@@ -129,22 +131,32 @@ export const isVoterRegistered = async (voterAddress) => {
 };
 
 // Voter management
-export const registerVoter = async (voterAddress) => {
-  const votingContract = getVotingContract();
+export const registerVoter = async (address) => {
   try {
-    const tx = await votingContract.registerVoter(voterAddress);
-    const receipt = await tx.wait();
-    console.log(
-      `Voter ${voterAddress} registered. Tx: ${receipt.transactionHash}`
-    );
-    return {
-      success: true,
-      transactionHash: receipt.transactionHash,
-      voterAddress,
-    };
+    const provider = new BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+
+    if (!contractAddress) {
+      console.error("Contract address is not defined.");
+      throw new Error("Contract address is not defined.");
+    }
+    console.log("Contract address:", contractAddress);
+    if (!contractAddress) {
+      console.error("Contract address is not defined.");
+      throw new Error("Contract address is not defined.");
+    }
+    console.log("Contract address:", contractAddress);
+    const contract = new Contract(contractAddress, VotingContractABI, signer);
+
+    // Optional: Gas estimation
+    const gasEstimate = await contract.registerVoter.estimateGas(address);
+    console.log("Gas estimate:", gasEstimate.toString());
+
+    const tx = await contract.registerVoter(address);
+    return tx.wait();
   } catch (error) {
-    console.error("Error registering voter:", error);
-    throw enhanceError(error);
+    console.error("Registration error:", error);
+    throw error;
   }
 };
 
@@ -318,7 +330,7 @@ export const connectWallet = async () => {
       );
     }
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const provider = new ethers.BrowserProvider(window.ethereum);
 
     // Request account access
     const accounts = await window.ethereum
@@ -357,11 +369,14 @@ export const getCurrentAccount = async () => {
       );
     }
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const accounts = await provider.listAccounts();
+    const provider = new ethers.BrowserProvider(window.ethereum);
+
+    // Correct way to request accounts in ethers v6
+    const accounts = await provider.send("eth_requestAccounts", []);
+
     return accounts[0] || null;
   } catch (error) {
     console.error("Error getting current account:", error);
-    return null; // Return null instead of throwing for silent failure
+    return null;
   }
 };

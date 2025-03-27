@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { BrowserProvider } from "ethers";
 import {
   FaSpinner,
   FaCheckCircle,
@@ -13,7 +14,7 @@ import {
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { registerVoter } from "./VotingContract";
+import { registerVoter, getCurrentAccount } from "./VotingContract";
 
 const WalletInfo = ({
   walletAddress,
@@ -35,15 +36,28 @@ const WalletInfo = ({
 
   // Handle voter registration
   const handleRegister = async () => {
-    if (!walletAddress) return;
+    if (!walletAddress) {
+      toast.error("Please connect your wallet first.");
+      return;
+    }
 
     try {
       setIsRegistering(true);
+
+      // Verify network connection
+      const provider = new BrowserProvider(window.ethereum);
+      const network = await provider.getNetwork();
+      if (network.chainId !== 31337n) {
+        throw new Error("Please connect to Anvil network (ChainID: 31337)");
+      }
+
       await registerVoter(walletAddress);
-      toast.success("Registration successful! You can now vote.");
+      toast.success("Registration successful!");
       refreshStatus();
     } catch (error) {
-      toast.error(`Registration failed: ${error.reason || error.message}`);
+      console.error("Registration error:", error);
+      const errorMsg = error.reason || error.message;
+      toast.error(`Failed: ${errorMsg.replace("execution reverted: ", "")}`);
     } finally {
       setIsRegistering(false);
     }
