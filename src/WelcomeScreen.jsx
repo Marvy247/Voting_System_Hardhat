@@ -11,7 +11,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const WelcomeScreen = ({ account, onWalletConnected }) => {
+const WelcomeScreen = ({ account, onConnect }) => {
   const [currentFeature, setCurrentFeature] = useState(0);
   const [showFeatures, setShowFeatures] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -35,7 +35,7 @@ const WelcomeScreen = ({ account, onWalletConnected }) => {
   const handleConnectWallet = async () => {
     setIsConnecting(true);
     try {
-      await onWalletConnected();
+      await onConnect();
     } finally {
       setIsConnecting(false);
     }
@@ -68,7 +68,7 @@ const WelcomeScreen = ({ account, onWalletConnected }) => {
   ];
 
   return (
-    <main className="relative min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-800 overflow-hidden">
+    <main className="relative min-h-screen w-full py-10 flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-800 overflow-hidden">
       {/* Enhanced Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Subtle noise texture */}

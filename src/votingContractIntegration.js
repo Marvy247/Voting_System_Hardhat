@@ -3,11 +3,9 @@ import VotingContractABI from "../artifacts/contracts/Voting.sol/Voting.json";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
-// Singleton contract instance
 let contractInstance = null;
 let provider = null;
 
-// Initialize provider and contract
 const initializeContract = async () => {
   if (typeof window.ethereum === "undefined") {
     throw new Error("MetaMask not installed");
@@ -27,6 +25,33 @@ const initializeContract = async () => {
   }
 
   return contractInstance;
+};
+
+// Add Admin Functions
+export const isAdmin = async (address) => {
+  const contract = await initializeContract();
+  try {
+    return await contract.isAdmin(address);
+  } catch (error) {
+    console.error("Error checking admin status:", error);
+    throw new Error("Failed to check admin status");
+  }
+};
+
+export const addAdmin = async (address) => {
+  const contract = await initializeContract();
+  return handleTransaction(
+    contract.addAdmin(address),
+    `Admin ${address} added successfully`
+  );
+};
+
+export const removeAdmin = async (address) => {
+  const contract = await initializeContract();
+  return handleTransaction(
+    contract.removeAdmin(address),
+    `Admin ${address} removed successfully`
+  );
 };
 
 // Enhanced transaction handler
@@ -209,13 +234,13 @@ export const connectWallet = async () => {
       throw new Error("No accounts found");
     }
 
+    console.log("Connected to wallet:", accounts[0]); // Added logging
     return accounts[0];
   } catch (error) {
     console.error("Wallet connection failed:", error);
     throw error;
   }
 };
-
 export const hasVoted = async (address) => {
   if (!ethers.isAddress(address)) {
     throw new Error("Invalid Ethereum address");

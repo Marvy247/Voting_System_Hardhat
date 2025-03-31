@@ -37,8 +37,8 @@
       ]
     },
     "/home/marvi/Desktop/Voting_System_Hardhat/contracts/Voting.sol": {
-      "lastModificationDate": 1743260073878,
-      "contentHash": "95f8217ec4d1d6f85b6449298ea98288",
+      "lastModificationDate": 1743449221660,
+      "contentHash": "9982d2f322cff19d11c47026a9302f2e",
       "sourceName": "contracts/Voting.sol",
       "solcConfig": {
         "version": "0.8.17",

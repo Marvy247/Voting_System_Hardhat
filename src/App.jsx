@@ -12,6 +12,12 @@ function App() {
   const [userAddress, setUserAddress] = useState(null);
   const [currentPage, setCurrentPage] = useState("welcome");
 
+  // Modal state
+  const [isAddCandidateModalOpen, setAddCandidateModalOpen] = useState(false);
+  const [isManageCandidateModalOpen, setManageCandidateModalOpen] =
+    useState(false);
+  const [isAddVoteModalOpen, setAddVoteModalOpen] = useState(false);
+
   const handleWalletConnect = async () => {
     const address = await connectWallet();
     setUserAddress(address);
@@ -23,9 +29,14 @@ function App() {
       case "welcome":
         return <WelcomeScreen onConnect={handleWalletConnect} />;
       case "dashboard":
-        return <Dashboard />;
-      case "candidateManagement":
-        return <CandidateManagement />;
+        return (
+          <Dashboard
+            setCurrentPage={setCurrentPage}
+            setAddCandidateModalOpen={setAddCandidateModalOpen}
+            setManageCandidateModalOpen={setManageCandidateModalOpen}
+            setAddVoteModalOpen={setAddVoteModalOpen}
+          />
+        );
       case "votingPage":
         return <VotingPage userAddress={userAddress} />;
       case "votingResults":
