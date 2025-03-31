@@ -35,6 +35,41 @@
       "artifacts": [
         "Voting"
       ]
+    },
+    "/home/marvi/Desktop/Voting_System_Hardhat/contracts/Voting.sol": {
+      "lastModificationDate": 1743260073878,
+      "contentHash": "95f8217ec4d1d6f85b6449298ea98288",
+      "sourceName": "contracts/Voting.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "Voting"
+      ]
     }
   }
 }

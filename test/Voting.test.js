@@ -1,146 +1,210 @@
 const { expect } = require("chai");
-const { ethers, network } = require("hardhat");
+const { ethers } = require("hardhat");
 
 describe("Voting Contract", function () {
-  let voting;
-  let owner;
-  let addr1;
-  let addr2;
+  let Voting, voting, owner, addr1, addr2;
 
   beforeEach(async function () {
-    const Voting = await ethers.getContractFactory("Voting");
-    voting = await Voting.deploy();
     [owner, addr1, addr2] = await ethers.getSigners();
+    Voting = await ethers.getContractFactory("Voting");
+    voting = await Voting.deploy();
+    await voting.waitForDeployment();
+  });
+
+  it("Should set the right owner", async function () {
+    expect(await voting.owner()).to.equal(owner.address);
   });
 
   describe("Candidate Management", function () {
-    it("should add a candidate successfully", async function () {
+    it("Should allow owner to add candidates when voting is inactive", async function () {
       await voting.addCandidate("Alice");
       const candidate = await voting.getCandidate(1);
-
       expect(candidate[1]).to.equal("Alice");
+      expect(candidate[2]).to.equal(0);
     });
 
-    it("should not allow adding a duplicate candidate", async function () {
+    it("Should not allow adding duplicate candidates", async function () {
       await voting.addCandidate("Alice");
       await expect(voting.addCandidate("Alice")).to.be.revertedWith(
         "Candidate already exists"
       );
     });
 
-    it("should delete a candidate successfully", async function () {
+    it("Should not allow non-owner to add candidates", async function () {
+      await expect(
+        voting.connect(addr1).addCandidate("Bob")
+      ).to.be.revertedWith("Only the owner can call this function");
+    });
+
+    it("Should not allow adding candidates during active voting", async function () {
       await voting.addCandidate("Alice");
+
+      await voting.startVoting(10);
+
+      await expect(voting.addCandidate("Bob")).to.be.revertedWith(
+        "Cannot add candidates during active voting"
+      );
+    });
+
+    it("Should allow owner to delete candidates when voting is inactive", async function () {
+      await voting.addCandidate("Alice");
+      await voting.addCandidate("Bob");
       await voting.deleteCandidate(1);
       await expect(voting.getCandidate(1)).to.be.revertedWith(
         "Candidate does not exist"
       );
+      const candidate2 = await voting.getCandidate(2);
+      expect(candidate2[1]).to.equal("Bob");
     });
 
-    it("should not allow deleting a non-existent candidate", async function () {
-      await expect(voting.deleteCandidate(0)).to.be.revertedWith(
-        "Candidate does not exist"
+    it("Should not allow deleting candidates during active voting", async function () {
+      await voting.addCandidate("Alice");
+      await voting.startVoting(10);
+      await expect(voting.deleteCandidate(1)).to.be.revertedWith(
+        "Cannot delete candidates during active voting"
+      );
+    });
+
+    it("Should not allow deleting non-existent candidates", async function () {
+      await expect(voting.deleteCandidate(1)).to.be.revertedWith(
+        "Invalid candidate ID"
+      );
+      await voting.addCandidate("Alice");
+      await expect(voting.deleteCandidate(2)).to.be.revertedWith(
+        "Invalid candidate ID"
+      );
+      await voting.deleteCandidate(1);
+      await expect(voting.deleteCandidate(1)).to.be.revertedWith(
+        "Candidate already deleted"
       );
     });
   });
 
   describe("Voting Process", function () {
-    it("should start the voting process", async function () {
-      await voting.startVoting(10); // Start voting for 10 minutes
-      expect(await voting.votingActive()).to.equal(true);
-    });
-
-    it("should end the voting process", async function () {
-      await voting.startVoting(10); // Start voting for 10 minutes
-      expect(await voting.votingActive()).to.equal(true);
-
-      // Simulate time passing (e.g., 11 minutes)
-      await network.provider.send("evm_increaseTime", [11 * 60]); // 11 minutes in seconds
-      await network.provider.send("evm_mine"); // Mine a new block to apply the time change
-
-      await voting.endVoting(); // End the voting process
-      expect(await voting.votingActive()).to.equal(false);
-    });
-
-    it("should register a voter successfully", async function () {
-      await voting.registerVoter(addr1.address);
-      expect(await voting.registeredVoters(addr1.address)).to.equal(true);
-    });
-
-    it("should not allow registering an already registered voter", async function () {
-      await voting.registerVoter(addr1.address);
-      await expect(voting.registerVoter(addr1.address)).to.be.revertedWith(
-        "Voter already registered"
-      );
-    });
-
-    it("should cast a vote successfully", async function () {
+    beforeEach(async function () {
       await voting.addCandidate("Alice");
-      await voting.registerVoter(addr1.address);
-      await voting.startVoting(10); // Start voting for 10 minutes
+      await voting.addCandidate("Bob");
+      await voting.startVoting(10); // 10 minutes voting period
+    });
+
+    it("Should allow voting for a valid candidate", async function () {
       await voting.connect(addr1).vote(1);
       const candidate = await voting.getCandidate(1);
-      expect(candidate[2]).to.equal(1); // Check if vote count is 1
+      expect(candidate[2]).to.equal(1);
+      expect(await voting.getTotalVotes()).to.equal(1);
     });
 
-    it("should not allow voting for a non-existent candidate", async function () {
-      await voting.registerVoter(addr1.address);
-      await voting.startVoting(10); // Start voting for 10 minutes
-      await expect(voting.connect(addr1).vote(0)).to.be.revertedWith(
-        "Candidate does not exist"
-      );
-    });
-
-    it("should not allow voting after the voting period has ended", async function () {
-      await voting.addCandidate("Alice");
-      await voting.registerVoter(addr1.address);
-      await voting.startVoting(0); // Start voting for 0 minutes (ends immediately)
-      await expect(voting.connect(addr1).vote(1)).to.be.revertedWith(
-        "Voting period has ended"
-      );
-    });
-  });
-
-  describe("State Checks", function () {
-    it("should not allow a voter to vote more than once", async function () {
-      await voting.addCandidate("Alice");
-      await voting.registerVoter(addr1.address);
-      await voting.startVoting(10); // Start voting for 10 minutes
+    it("Should not allow double voting", async function () {
       await voting.connect(addr1).vote(1);
       await expect(voting.connect(addr1).vote(1)).to.be.revertedWith(
         "Voter has already voted"
       );
     });
 
-    it("should only allow registered voters to vote", async function () {
-      await voting.addCandidate("Alice");
-      await voting.startVoting(10); // Start voting for 10 minutes
+    it("Should not allow voting for a non-existent candidate", async function () {
+      await expect(voting.connect(addr1).vote(3)).to.be.revertedWith(
+        "Candidate does not exist"
+      );
+    });
+
+    it("Should track votes correctly for multiple candidates", async function () {
+      await voting.connect(addr1).vote(1);
+      await voting.connect(addr2).vote(2);
+      const candidate1 = await voting.getCandidate(1);
+      const candidate2 = await voting.getCandidate(2);
+      expect(candidate1[2]).to.equal(1);
+      expect(candidate2[2]).to.equal(1);
+      expect(await voting.getTotalVotes()).to.equal(2);
+    });
+
+    it("Should not allow voting when voting is inactive", async function () {
+      await voting.endVoting();
       await expect(voting.connect(addr1).vote(1)).to.be.revertedWith(
-        "Voter not registered"
+        "Voting is not active"
+      );
+    });
+
+    it("Should not allow voting after the voting period has ended", async function () {
+      // Increase time by 11 minutes (more than the 10 minute voting period)
+      await ethers.provider.send("evm_increaseTime", [11 * 60]);
+      await ethers.provider.send("evm_mine");
+      await expect(voting.connect(addr1).vote(1)).to.be.revertedWith(
+        "Voting period has ended"
       );
     });
   });
 
-  describe("Events", function () {
-    it("should emit CandidateAdded event when a candidate is added", async function () {
-      await expect(voting.addCandidate("Alice")).to.emit(
-        voting,
-        "CandidateAdded"
-      );
-    });
-
-    it("should emit CandidateDeleted event when a candidate is deleted", async function () {
+  describe("Voting Activation", function () {
+    it("Should allow owner to start and end voting", async function () {
       await voting.addCandidate("Alice");
-      await expect(voting.deleteCandidate(1)).to.emit(
-        voting,
-        "CandidateDeleted"
+      await voting.startVoting(10);
+      expect(await voting.votingActive()).to.be.true;
+      await ethers.provider.send("evm_increaseTime", [600]);
+      await ethers.provider.send("evm_mine");
+      await voting.endVoting();
+      expect(await voting.votingActive()).to.be.false;
+    });
+
+    it("Should not allow starting voting with no candidates", async function () {
+      await expect(voting.startVoting(10)).to.be.revertedWith(
+        "No candidates added"
       );
     });
 
-    it("should emit VoterRegistered event when a voter is registered", async function () {
-      await expect(voting.registerVoter(addr1.address)).to.emit(
-        voting,
-        "VoterRegistered"
+    it("Should not allow non-owner to start voting", async function () {
+      await expect(voting.connect(addr1).startVoting(10)).to.be.revertedWith(
+        "Only the owner can call this function"
       );
+    });
+
+    it("Should not allow non-owner to end voting", async function () {
+      await voting.addCandidate("Alice");
+      await voting.startVoting(10);
+      await expect(voting.connect(addr1).endVoting()).to.be.revertedWith(
+        "Only the owner can call this function"
+      );
+    });
+
+    it("Should correctly track voting end time", async function () {
+      await voting.addCandidate("Alice");
+
+      const currentBlock = await ethers.provider.getBlock("latest");
+      const startTime = currentBlock.timestamp;
+
+      await voting.startVoting(10); // 10 minutes
+
+      const endTime = await voting.votingEndTime();
+
+      const expectedEndTime = startTime + 600;
+
+      expect(endTime).to.be.closeTo(expectedEndTime, 2);
+    });
+
+    describe("Edge Cases", function () {
+      it("Should handle vote count correctly when deleting candidates", async function () {
+        await voting.addCandidate("Alice");
+        await voting.addCandidate("Bob");
+        await voting.startVoting(10);
+        await voting.connect(addr1).vote(1);
+        await voting.connect(addr2).vote(1);
+        await ethers.provider.send("evm_increaseTime", [600]);
+        await ethers.provider.send("evm_mine");
+        await voting.endVoting();
+
+        // After voting ends, delete candidate 1
+        await voting.deleteCandidate(1);
+
+        // Total votes should be reduced by the votes for candidate 1
+        expect(await voting.getTotalVotes()).to.equal(0);
+      });
+
+      it("Should return correct voter information", async function () {
+        await voting.addCandidate("Alice");
+        await voting.startVoting(10);
+        await voting.connect(addr1).vote(1);
+        expect(await voting.getVoterVote(addr1.address)).to.equal(1);
+        expect(await voting.getVoterVote(addr2.address)).to.equal(0);
+      });
     });
   });
 });
