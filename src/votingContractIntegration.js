@@ -195,18 +195,6 @@ export const getCurrentAccount = async () => {
   return address;
 };
 
-export const registerVoter = async (address) => {
-  if (!ethers.isAddress(address)) {
-    throw new Error("Invalid Ethereum address");
-  }
-
-  const contract = await initializeContract();
-  return handleTransaction(
-    contract.registerVoter(address),
-    `Voter registered: ${address}`
-  );
-};
-
 // Wallet functions
 export const connectWallet = async () => {
   try {
