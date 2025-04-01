@@ -46,7 +46,7 @@ const VotingPage = ({ userAddress }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-20 px-5">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20 px-5">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -54,10 +54,10 @@ const VotingPage = ({ userAddress }) => {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl font-bold text-gray-800 flex items-center justify-center gap-3">
-            <FaVoteYea className="text-purple-500" /> Election Voting
+          <h1 className="text-4xl font-bold text-gray-200 flex items-center justify-center gap-3">
+            <FaVoteYea className="text-purple-100" /> Election Voting
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-300 mt-2">
             {userAddress
               ? `Connected as: ${userAddress.substring(
                   0,

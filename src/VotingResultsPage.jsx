@@ -34,7 +34,7 @@ const VotingResultsPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-20 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <motion.div
@@ -43,8 +43,8 @@ const VotingResultsPage = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl font-bold text-gray-800 flex items-center justify-center gap-3">
-            <FaChartBar className="text-blue-500" /> Election Results
+          <h1 className="text-4xl font-bold text-gray-200 flex items-center justify-center gap-3">
+            <FaChartBar className="text-blue-100" /> Election Results
           </h1>
           <div className="mt-6 bg-white rounded-xl shadow-md p-6 max-w-2xl mx-auto">
             {loading ? (
