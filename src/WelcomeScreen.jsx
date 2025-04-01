@@ -33,9 +33,17 @@ const WelcomeScreen = ({ account, onConnect }) => {
   }, [account, navigate]);
 
   const handleConnectWallet = async () => {
+    if (account) {
+      navigate("/dashboard");
+      return;
+    }
+
     setIsConnecting(true);
     try {
       await onConnect();
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Connection failed:", error);
     } finally {
       setIsConnecting(false);
     }
@@ -132,15 +140,19 @@ const WelcomeScreen = ({ account, onConnect }) => {
               className="mb-8"
             >
               <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                animate={{ rotate: [0, 20, -20, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
                 className="inline-block"
               >
-                <FaVoteYea className="mx-auto lg:mx-0 w-16 h-16 text-purple-400 mb-4" />
+                <FaVoteYea className="mx-auto lg:mx-0 w-20 h-16 text-purple-400 " />
               </motion.div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent">
-                Welcome To BlockVote
+                Welcome To{" "}
+                <span className="text-5xl sm:text-6xl md:text-7xl lg:text-7xl font-extrabold">
+                  BlockVote
+                </span>
               </h1>
+
               <h2 className="text-2xl sm:text-3xl text-gray-300 mb-6">
                 Secure. Transparent. Unchangeable.
               </h2>
@@ -168,7 +180,12 @@ const WelcomeScreen = ({ account, onConnect }) => {
                 disabled={isConnecting}
                 className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-3 px-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-purple-500/30"
               >
-                {isConnecting ? (
+                {account ? (
+                  <>
+                    <FaCheckCircle className="mr-2" />
+                    Connected
+                  </>
+                ) : isConnecting ? (
                   <span className="flex items-center">
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"

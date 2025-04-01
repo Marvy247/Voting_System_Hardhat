@@ -1,32 +1,40 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Import Link for navigation
+import { Link, useLocation } from "react-router-dom";
 import {
   FaVoteYea,
   FaHome,
-  FaPoll,
   FaUsers,
   FaBars,
   FaTimes,
-} from "react-icons/fa"; // Added FaBars import
-import { useLocation } from "react-router-dom";
+  FaChartLine,
+  FaUserCog,
+} from "react-icons/fa";
 
 const Header = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const location = useLocation();
 
-  // Close mobile menu when route changes
   React.useEffect(() => {
     setIsOpen(false);
   }, [location]);
 
-  // Navigation items
   const navItems = [
     { path: "/", name: "Home", icon: <FaHome className="mr-2" /> },
-    { path: "/vote", name: "Vote", icon: <FaPoll className="mr-2" /> },
     {
-      path: "/candidates",
-      name: "Candidates",
+      path: "/dashboard",
+      name: "Dashboard",
       icon: <FaUsers className="mr-2" />,
+    },
+    { path: "/voting", name: "Voting", icon: <FaVoteYea className="mr-2" /> },
+    {
+      path: "/results",
+      name: "Results",
+      icon: <FaChartLine className="mr-2" />,
+    },
+    {
+      path: "/manage-candidates",
+      name: "Manage",
+      icon: <FaUserCog className="mr-2" />,
     },
   ];
 

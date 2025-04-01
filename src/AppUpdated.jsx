@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import WelcomeScreen from "./WelcomeScreen";
@@ -15,13 +15,12 @@ function App() {
   const [isManageCandidateModalOpen, setManageCandidateModalOpen] =
     useState(false);
   const [isAddVoteModalOpen, setAddVoteModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState("welcome"); // New state for current page
 
   const handleWalletConnect = async () => {
-    try {
-      const address = await connectWallet();
+    const address = await connectWallet();
+    if (address) {
       setUserAddress(address);
-    } catch (error) {
-      console.error("Wallet connection failed:", error);
     }
   };
 
@@ -44,6 +43,7 @@ function App() {
             element={
               <Dashboard
                 userAddress={userAddress}
+                setCurrentPage={setCurrentPage} // Pass setCurrentPage to Dashboard
                 setAddCandidateModalOpen={setAddCandidateModalOpen}
                 setManageCandidateModalOpen={setManageCandidateModalOpen}
                 setAddVoteModalOpen={setAddVoteModalOpen}
