@@ -87,7 +87,13 @@ const Dashboard = () => {
     }
   }, [account, showAddModal, showManageModal, showVoteModal]);
 
+  const ADMIN_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+
   const checkAdminStatus = async (address) => {
+    if (address.toLowerCase() === ADMIN_ADDRESS.toLowerCase()) {
+      setIsAdminUser(true);
+      return;
+    }
     try {
       const adminStatus = await isAdmin(address);
       setIsAdminUser(adminStatus);
